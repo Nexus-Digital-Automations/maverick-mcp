@@ -2,13 +2,13 @@
 Tool Registry for MaverickMCP.
 
 Streamlined tool registration using unified interfaces.
-Consolidates 132+ individual tools → ~34 unified tools.
+Consolidates 132+ individual tools → ~40 unified tools.
 
 Tool Categories:
     - Unified Analysis (18 tools): Consolidated analysis tools with parameter-based dispatch
-    - OpenBB Data (10 tools): Primary data provider for all asset classes
-    - Yahoo Finance (3 tools): Unique data (holders, recommendations, options)
-    - Data Tools (3 tools): Stock data fetching and caching
+    - OpenBB Data (9 tools): Primary data provider for all asset classes
+    - Yahoo Finance (2 tools): Unique data (holders, recommendations)
+    - Data Tools (1 tool): News sentiment (stock data/info use OpenBB)
     - Research Tools (4 tools): AI-powered research and sentiment
     - System Tools (2 tools): Health and performance monitoring
     - Backtesting (5 tools): Strategy testing and optimization
@@ -92,7 +92,7 @@ def register_unified_tools(mcp: FastMCP) -> None:
 
 
 # =============================================================================
-# OPENBB DATA TOOLS (10 tools)
+# OPENBB DATA TOOLS (9 tools)
 # =============================================================================
 
 
@@ -119,7 +119,6 @@ def register_openbb_tools(mcp: FastMCP) -> None:
         get_futures_historical,
         get_gdp_data,
         get_interest_rates,
-        get_options_chains,
         get_treasury_rates,
         get_unemployment_data,
         search_crypto,
@@ -254,10 +253,7 @@ def register_openbb_tools(mcp: FastMCP) -> None:
         """Get comprehensive company information (sector, industry, description)."""
         return await get_equity_info(symbol, provider)
 
-    @mcp.tool(name="openbb_get_options_chains")
-    async def openbb_options_chains(symbol: str = "AAPL", provider: str = "yfinance"):
-        """Get full options chain data with strikes, expirations, and greeks."""
-        return await get_options_chains(symbol, provider)
+    # Note: openbb_get_options_chains removed - use options_analysis(symbol, 'chain') instead
 
     @mcp.tool(name="openbb_get_company_news")
     async def openbb_company_news(
@@ -296,11 +292,11 @@ def register_openbb_tools(mcp: FastMCP) -> None:
         """Get upcoming economic events calendar."""
         return await get_economic_calendar(start_date, end_date, provider)
 
-    logger.info("✓ OpenBB data tools registered (10 tools)")
+    logger.info("✓ OpenBB data tools registered (9 tools)")
 
 
 # =============================================================================
-# YAHOO FINANCE TOOLS (3 tools - unique data only)
+# YAHOO FINANCE TOOLS (2 tools - unique data only)
 # =============================================================================
 
 
@@ -310,12 +306,11 @@ def register_yahoo_tools(mcp: FastMCP) -> None:
     Yahoo Finance is used only for:
     - Holder information (institutional, insider, major holders)
     - Analyst recommendations (granular upgrades/downgrades)
-    - Options data with unified interface
+
+    Note: Options tools removed - use options_analysis(symbol, 'expirations'/'chain') instead.
     """
     from maverick_mcp.api.routers.yahoo_finance import (
         get_yahoo_holder_info,
-        get_yahoo_options_chain,
-        get_yahoo_options_expirations,
         get_yahoo_recommendations,
     )
 
@@ -358,57 +353,25 @@ def register_yahoo_tools(mcp: FastMCP) -> None:
         """
         return await get_yahoo_recommendations(ticker, recommendation_type, months_back)
 
-    @mcp.tool(name="yahoo_options")
-    async def yahoo_options(
-        ticker: str,
-        action: str = "expirations",
-        expiration_date: str | None = None,
-        option_type: str = "calls",
-    ):
-        """
-        Unified options data from Yahoo Finance.
+    # Note: yahoo_options removed - use options_analysis(symbol, 'expirations'/'chain') instead
 
-        Args:
-            ticker: Stock ticker symbol (e.g., 'AAPL')
-            action: 'expirations' (get dates) | 'chain' (get options chain)
-            expiration_date: Required for action='chain' (YYYY-MM-DD)
-            option_type: 'calls' | 'puts' (for chain)
-
-        Returns:
-            Expirations list or options chain data.
-        """
-        if action == "expirations":
-            return await get_yahoo_options_expirations(ticker)
-        elif action == "chain":
-            if not expiration_date:
-                return {
-                    "error": "expiration_date required for action='chain'",
-                    "hint": "First call with action='expirations' to see available dates",
-                }
-            return await get_yahoo_options_chain(ticker, expiration_date, option_type)
-        else:
-            return {"error": f"Invalid action '{action}'. Use 'expirations' or 'chain'"}
-
-    logger.info("✓ Yahoo Finance tools registered (3 tools)")
+    logger.info("✓ Yahoo Finance tools registered (2 tools)")
 
 
 # =============================================================================
-# DATA TOOLS (3 tools)
+# DATA TOOLS (1 tool - stock data & info now use OpenBB)
 # =============================================================================
 
 
 def register_data_tools(mcp: FastMCP) -> None:
-    """Register data fetching and caching tools."""
-    from maverick_mcp.api.routers.data import (
-        fetch_stock_data,
-        get_stock_info,
-    )
+    """Register data fetching tools.
+
+    Note: data_fetch_stock_data and data_get_stock_info removed as redundant.
+    Use openbb_get_historical and openbb_get_equity_info instead.
+    """
     from maverick_mcp.api.routers.news_sentiment_enhanced import (
         get_news_sentiment_enhanced,
     )
-
-    mcp.tool(name="data_fetch_stock_data")(fetch_stock_data)
-    mcp.tool(name="data_get_stock_info")(get_stock_info)
 
     @mcp.tool(name="data_get_news_sentiment")
     async def get_news_sentiment(ticker: str, timeframe: str = "7d", limit: int = 10):
@@ -425,7 +388,7 @@ def register_data_tools(mcp: FastMCP) -> None:
         """
         return await get_news_sentiment_enhanced(ticker, timeframe, limit)
 
-    logger.info("✓ Data tools registered (3 tools)")
+    logger.info("✓ Data tools registered (1 tool)")
 
 
 # =============================================================================
@@ -633,11 +596,11 @@ def register_mcp_prompts_and_resources(mcp: FastMCP) -> None:
 def register_all_router_tools(mcp: FastMCP) -> None:
     """Register all tools on the main server.
 
-    Tool Summary (~34 tools):
+    Tool Summary (~40 tools):
         - Unified Analysis: 18 tools (consolidated from 60+)
-        - OpenBB Data: 10 tools (equity, crypto, forex, futures, economy)
-        - Yahoo Finance: 3 tools (holders, recommendations, options)
-        - Data Tools: 3 tools (stock data, info, sentiment)
+        - OpenBB Data: 9 tools (equity, crypto, forex, futures, economy)
+        - Yahoo Finance: 2 tools (holders, recommendations)
+        - Data Tools: 1 tool (news sentiment)
         - Research: 4 tools (comprehensive, company, sentiment, news)
         - System: 2 tools (health, performance)
         - Backtesting: 5 tools (backtest, compare, optimize, analyze, report)
@@ -646,25 +609,25 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     logger.info("Starting MaverickMCP tool registration...")
     logger.info("=" * 60)
 
-    # Register unified analysis tools (14 tools)
+    # Register unified analysis tools (18 tools)
     try:
         register_unified_tools(mcp)
     except Exception as e:
         logger.error(f"✗ Failed to register unified tools: {e}")
 
-    # Register OpenBB data tools (10 tools)
+    # Register OpenBB data tools (9 tools)
     try:
         register_openbb_tools(mcp)
     except Exception as e:
         logger.error(f"✗ Failed to register OpenBB tools: {e}")
 
-    # Register Yahoo Finance tools (3 tools)
+    # Register Yahoo Finance tools (2 tools)
     try:
         register_yahoo_tools(mcp)
     except Exception as e:
         logger.error(f"✗ Failed to register Yahoo tools: {e}")
 
-    # Register data tools (3 tools)
+    # Register data tools (1 tool)
     try:
         register_data_tools(mcp)
     except Exception as e:
@@ -718,16 +681,16 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     logger.info("   • simulation - Monte Carlo asset/portfolio simulation")
     logger.info("   • ml_predictions - price forecast, patterns, regime, trend, ensemble")
     logger.info("")
-    logger.info("📈 DATA TOOLS (16):")
+    logger.info("📈 DATA TOOLS (12):")
     logger.info("   • OpenBB: historical, economic indicator, search, quote, info,")
-    logger.info("     options chains, news, financials, treasury, calendar")
-    logger.info("   • Yahoo: holder info, recommendations, options")
-    logger.info("   • Data: fetch stock data, get stock info, news sentiment")
+    logger.info("     news, financials, treasury, calendar")
+    logger.info("   • Yahoo: holder info, recommendations")
+    logger.info("   • Data: news sentiment")
     logger.info("")
     logger.info("🔬 RESEARCH & SYSTEM (11):")
     logger.info("   • Research: comprehensive, company, sentiment, news")
     logger.info("   • System: health, performance monitoring")
     logger.info("   • Backtesting: backtest, compare, optimize, analyze, report")
     logger.info("")
-    logger.info("Total: ~34 tools (consolidated from 132+)")
+    logger.info("Total: ~40 tools (consolidated from 132+)")
     logger.info("=" * 60)

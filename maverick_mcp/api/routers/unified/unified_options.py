@@ -136,6 +136,8 @@ async def options_analysis(
             - 'put_call_ratio': Market sentiment indicator from P/C ratio
             - 'strategy': Multi-leg strategy P&L analysis
             - 'strategy_template': Build a predefined strategy (iron condor, etc.)
+            - 'expirations': Get available expiration dates
+            - 'chain': Get options chain for specific expiration
             - 'overview': Summary of key options metrics (default)
         expiration_date: Expiration date for Greeks (YYYY-MM-DD format)
         strike: Strike price for Greeks calculation
@@ -177,7 +179,8 @@ async def options_analysis(
 
     valid_types = [
         "greeks", "iv_surface", "iv_percentile", "skew",
-        "put_call_ratio", "strategy", "strategy_template", "overview"
+        "put_call_ratio", "strategy", "strategy_template", "overview",
+        "expirations", "chain"
     ]
     if analysis_type not in valid_types:
         return {
@@ -255,6 +258,27 @@ async def options_analysis(
                 strategy_name=strategy_name,
                 target_days_to_expiry=target_days_to_expiry,
                 price_range_pct=price_range_pct,
+            )
+            return result
+
+        elif analysis_type == "expirations":
+            # Get available expiration dates
+            result = await _get_options_expirations(symbol=symbol)
+            return result
+
+        elif analysis_type == "chain":
+            # Get options chain for a specific expiration
+            if not expiration_date:
+                return {
+                    "error": "expiration_date required for chain analysis",
+                    "hint": "Use analysis_type='expirations' first to see dates",
+                    "symbol": symbol,
+                    "status": "error",
+                }
+            result = await _get_options_chain(
+                symbol=symbol,
+                expiration_date=expiration_date,
+                option_type=option_type,
             )
             return result
 
@@ -601,5 +625,129 @@ async def _build_strategy_template(
             "error": str(e),
             "symbol": symbol,
             "strategy_name": strategy_name,
+            "status": "error",
+        }
+
+
+async def _get_options_expirations(symbol: str) -> dict[str, Any]:
+    """Get available options expiration dates for a symbol."""
+    import yfinance as yf
+
+    try:
+        ticker = yf.Ticker(symbol)
+        expirations = ticker.options
+
+        if not expirations:
+            return {
+                "symbol": symbol,
+                "analysis_type": "expirations",
+                "expirations": [],
+                "message": f"No options available for {symbol}",
+                "status": "success",
+            }
+
+        return {
+            "symbol": symbol,
+            "analysis_type": "expirations",
+            "expirations": list(expirations),
+            "count": len(expirations),
+            "nearest": expirations[0] if expirations else None,
+            "furthest": expirations[-1] if expirations else None,
+            "status": "success",
+        }
+
+    except Exception as e:
+        logger.error(f"Error getting expirations for {symbol}: {e}")
+        return {
+            "error": str(e),
+            "symbol": symbol,
+            "analysis_type": "expirations",
+            "status": "error",
+        }
+
+
+async def _get_options_chain(
+    symbol: str,
+    expiration_date: str,
+    option_type: str = "calls",
+) -> dict[str, Any]:
+    """Get options chain for a specific expiration date."""
+    import yfinance as yf
+
+    try:
+        ticker = yf.Ticker(symbol)
+
+        # Validate expiration date
+        if expiration_date not in ticker.options:
+            return {
+                "error": f"Invalid expiration '{expiration_date}'",
+                "available_expirations": list(ticker.options)[:5],
+                "hint": "Use analysis_type='expirations' to see all dates",
+                "symbol": symbol,
+                "status": "error",
+            }
+
+        # Get the chain
+        chain = ticker.option_chain(expiration_date)
+        option_type = option_type.lower().strip()
+
+        if option_type in ["call", "calls"]:
+            df = chain.calls
+        elif option_type in ["put", "puts"]:
+            df = chain.puts
+        else:
+            return {
+                "error": f"Invalid option_type '{option_type}'",
+                "hint": "Use 'calls' or 'puts'",
+                "symbol": symbol,
+                "status": "error",
+            }
+
+        # Convert to list of dicts (handle NaN values)
+        import math
+
+        options_data = []
+        for _, row in df.iterrows():
+            vol = row.get("volume", 0)
+            oi = row.get("openInterest", 0)
+            iv = row.get("impliedVolatility", 0)
+
+            options_data.append({
+                "strike": float(row["strike"]),
+                "lastPrice": float(row.get("lastPrice", 0) or 0),
+                "bid": float(row.get("bid", 0) or 0),
+                "ask": float(row.get("ask", 0) or 0),
+                "volume": int(vol) if vol and not (isinstance(vol, float) and math.isnan(vol)) else 0,
+                "openInterest": int(oi) if oi and not (isinstance(oi, float) and math.isnan(oi)) else 0,
+                "impliedVolatility": round(float(iv), 4) if iv and not (isinstance(iv, float) and math.isnan(iv)) else 0.0,
+                "inTheMoney": bool(row.get("inTheMoney", False)),
+            })
+
+        # Get current stock price
+        current_price = None
+        try:
+            info = ticker.info
+            current_price = info.get("regularMarketPrice") or info.get("currentPrice")
+        except Exception:
+            pass
+
+        return {
+            "symbol": symbol,
+            "analysis_type": "chain",
+            "expiration_date": expiration_date,
+            "option_type": option_type,
+            "current_price": current_price,
+            "chain": options_data,
+            "count": len(options_data),
+            "status": "success",
+        }
+
+    except Exception as e:
+        logger.error(f"Error getting chain for {symbol}: {e}")
+        return {
+            "error": str(e),
+            "symbol": symbol,
+            "expiration_date": expiration_date,
+            "analysis_type": "chain",
             "status": "error",
         }
