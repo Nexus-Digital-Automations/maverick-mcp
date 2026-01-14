@@ -1,48 +1,46 @@
 """
 Unified Alternative Data Tool.
 
-Consolidates 5 alternative data tools into 1 unified interface:
+Consolidates 4 alternative data tools into 1 unified interface:
 - Short interest analysis
 - Insider transactions
 - Institutional holdings
 - Options flow analysis
-- Composite sentiment scoring
 """
 
 import logging
 from typing import Any
 
+from maverick_mcp.api.routers.unified.analysis_wrapper import with_analysis_storage
+
 logger = logging.getLogger(__name__)
 
 
+@with_analysis_storage("alternative_data")
 async def alternative_data(
     symbol: str,
-    data_type: str = "sentiment",
+    data_type: str = "short_interest",
     period_days: int = 90,
 ) -> dict[str, Any]:
     """
     Unified alternative data analysis for market insights.
 
     Consolidates short interest, insider transactions, institutional holdings,
-    options flow, and sentiment analysis into a single tool.
+    and options flow analysis into a single tool.
 
     Args:
         symbol: Stock ticker symbol (e.g., 'AAPL', 'GME')
         data_type: Type of alternative data:
-            - 'short_interest': Short interest % and squeeze potential
+            - 'short_interest': Short interest % and squeeze potential (default)
             - 'insider': Insider buying/selling activity
             - 'institutional': Top institutional holders and flow
             - 'options_flow': Put/call ratio and unusual activity
-            - 'sentiment': Composite sentiment score combining all sources (default)
-        period_days: Analysis period for insider/sentiment (default: 90)
+        period_days: Analysis period for insider data (default: 90)
 
     Returns:
         Dictionary containing alternative data analysis results.
 
     Examples:
-        # Composite sentiment score
-        >>> alternative_data("AAPL")
-
         # Short squeeze analysis
         >>> alternative_data("GME", data_type="short_interest")
 
@@ -61,7 +59,7 @@ async def alternative_data(
     symbol = symbol.strip().upper()
     data_type = data_type.lower().strip()
 
-    valid_types = ["short_interest", "insider", "institutional", "options_flow", "sentiment"]
+    valid_types = ["short_interest", "insider", "institutional", "options_flow"]
     if data_type not in valid_types:
         return {
             "error": f"Invalid data_type '{data_type}'. Must be one of: {valid_types}",
@@ -74,7 +72,6 @@ async def alternative_data(
             alt_insider_transactions,
             alt_institutional_holdings,
             alt_options_flow,
-            alt_sentiment_composite,
             alt_short_interest,
         )
 
@@ -96,14 +93,9 @@ async def alternative_data(
             result["data_type"] = "institutional"
             return result
 
-        elif data_type == "options_flow":
+        else:  # options_flow
             result = await alt_options_flow(symbol=symbol)
             result["data_type"] = "options_flow"
-            return result
-
-        else:  # sentiment
-            result = await alt_sentiment_composite(symbol=symbol)
-            result["data_type"] = "sentiment"
             return result
 
     except Exception as e:

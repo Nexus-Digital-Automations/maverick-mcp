@@ -13,9 +13,12 @@ Consolidates 6 quant analysis tools into 1 unified interface:
 import logging
 from typing import Any
 
+from maverick_mcp.api.routers.unified.analysis_wrapper import with_analysis_storage
+
 logger = logging.getLogger(__name__)
 
 
+@with_analysis_storage("quant_analysis")
 async def quant_analysis(
     symbol: str | None = None,
     symbols: list[str] | None = None,
@@ -62,7 +65,7 @@ async def quant_analysis(
     """
     analysis_type = analysis_type.lower().strip()
 
-    valid_types = ["beta", "correlation", "factors", "momentum", "volatility", "scores", "comprehensive"]
+    valid_types = ["beta", "correlation", "factors", "momentum", "volatility", "scores", "comprehensive", "seasonality"]
     if analysis_type not in valid_types:
         return {
             "error": f"Invalid analysis_type '{analysis_type}'. Must be one of: {valid_types}",
@@ -80,6 +83,7 @@ async def quant_analysis(
             quant_factor_exposure,
             quant_factor_scores,
             quant_momentum_analysis,
+            quant_seasonality_analysis,
             quant_volatility_analysis,
         )
 
@@ -129,6 +133,13 @@ async def quant_analysis(
                 symbol=symbol or symbols[0] if symbols else "AAPL",
             )
             result["analysis_type"] = "scores"
+            return result
+
+        elif analysis_type == "seasonality":
+            result = await quant_seasonality_analysis(
+                symbol=symbol or symbols[0] if symbols else "AAPL",
+            )
+            result["analysis_type"] = "seasonality"
             return result
 
         else:  # comprehensive

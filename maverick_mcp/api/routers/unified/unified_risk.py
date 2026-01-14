@@ -13,9 +13,12 @@ Consolidates 6 risk metrics tools into 1 unified interface:
 import logging
 from typing import Any
 
+from maverick_mcp.api.routers.unified.analysis_wrapper import with_analysis_storage
+
 logger = logging.getLogger(__name__)
 
 
+@with_analysis_storage("risk_analysis")
 async def risk_analysis(
     symbol: str | None = None,
     symbols: list[str] | None = None,

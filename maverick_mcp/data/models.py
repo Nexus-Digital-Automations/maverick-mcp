@@ -392,6 +392,9 @@ class Stock(Base, TimestampMixin):
     technical_cache = relationship(
         "TechnicalCache", back_populates="stock", cascade="all, delete-orphan"
     )
+    analysis_cache = relationship(
+        "AnalysisCache", back_populates="stock", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Stock(ticker={self.ticker_symbol}, name={self.company_name})>"
@@ -1794,6 +1797,208 @@ class PortfolioPosition(TimestampMixin, Base):
 
     def __repr__(self):
         return f"<PortfolioPosition(ticker='{self.ticker}', shares={self.shares}, cost_basis={self.average_cost_basis})>"
+
+
+# ==============================================================================
+# WATCHLIST MODELS
+# ==============================================================================
+
+
+class Watchlist(TimestampMixin, Base):
+    """User watchlist for tracking stocks of interest.
+
+    Watchlists allow users to organize and monitor stocks without owning them.
+    Supports multiple watchlists per user with custom names and descriptions.
+
+    Attributes:
+        id: Unique watchlist identifier (UUID)
+        user_id: User identifier for multi-account support
+        name: Watchlist name (e.g., "Tech Growth", "Dividend Kings")
+        description: Optional description of watchlist purpose
+        items: Related WatchlistItem records
+    """
+
+    __tablename__ = "mcp_watchlists"
+
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id = Column(String(100), nullable=False, default="default", index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+
+    # Relationships
+    items = relationship(
+        "WatchlistItem",
+        back_populates="watchlist",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Indexes for efficient queries
+    __table_args__ = (
+        Index("idx_watchlist_user", "user_id"),
+        Index("idx_watchlist_name", "name"),
+        UniqueConstraint("user_id", "name", name="uq_watchlist_user_name"),
+    )
+
+    def __repr__(self):
+        return f"<Watchlist(name='{self.name}', user_id='{self.user_id}')>"
+
+
+class WatchlistItem(TimestampMixin, Base):
+    """Individual item in a watchlist.
+
+    Tracks stocks with optional price targets and notes for monitoring.
+    Stores the price when added for performance tracking.
+
+    Attributes:
+        id: Unique item identifier (UUID)
+        watchlist_id: Foreign key to parent watchlist
+        ticker: Stock ticker symbol (e.g., "AAPL")
+        price_when_added: Stock price at time of addition
+        target_price: Optional target price for alerts/monitoring
+        stop_loss: Optional stop loss price
+        notes: Optional user notes about why stock is watched
+    """
+
+    __tablename__ = "mcp_watchlist_items"
+
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    watchlist_id = Column(
+        Uuid, ForeignKey("mcp_watchlists.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Item details
+    ticker = Column(String(20), nullable=False, index=True)
+    price_when_added = Column(Numeric(12, 4), nullable=True)  # Price at addition time
+    target_price = Column(Numeric(12, 4), nullable=True)  # Optional target
+    stop_loss = Column(Numeric(12, 4), nullable=True)  # Optional stop loss
+    notes = Column(Text, nullable=True)  # Why watching this stock
+
+    # Relationships
+    watchlist = relationship("Watchlist", back_populates="items")
+
+    # Indexes for efficient queries
+    __table_args__ = (
+        Index("idx_watchlist_item_watchlist", "watchlist_id"),
+        Index("idx_watchlist_item_ticker", "ticker"),
+        UniqueConstraint(
+            "watchlist_id", "ticker", name="uq_watchlist_item_ticker"
+        ),
+    )
+
+    def __repr__(self):
+        return f"<WatchlistItem(ticker='{self.ticker}', target={self.target_price})>"
+
+
+class AnalysisCache(Base):
+    """
+    Stores complete analysis results for later retrieval.
+
+    This model enables automatic storage and retrieval of analysis results,
+    reducing redundant API calls and providing historical context.
+    """
+
+    __tablename__ = "mcp_analysis_cache"
+
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    stock_id = Column(
+        Uuid, ForeignKey("mcp_stocks.stock_id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Analysis identification
+    tool_name = Column(
+        String(50), nullable=False
+    )  # technical_analysis, quant_analysis, etc.
+    analysis_type = Column(
+        String(50), nullable=False
+    )  # rsi, macd, beta, full, etc.
+
+    # Result storage
+    result = Column(Text, nullable=False)  # JSON blob of complete analysis
+    result_hash = Column(String(64), nullable=True)  # SHA256 for deduplication
+
+    # Metadata
+    input_params = Column(Text, nullable=True)  # JSON of input parameters used
+    data_date_range = Column(
+        String(100), nullable=True
+    )  # e.g., "2024-01-01 to 2025-01-14"
+
+    # Timestamps - never expire by default
+    created_at = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
+
+    # Relationships
+    stock = relationship("Stock", back_populates="analysis_cache")
+
+    # Indexes for efficient queries
+    __table_args__ = (
+        Index("ix_analysis_cache_lookup", "stock_id", "tool_name", "analysis_type"),
+        Index("ix_analysis_cache_created", "created_at"),
+        Index("ix_analysis_cache_tool", "tool_name"),
+    )
+
+    def __repr__(self):
+        return (
+            f"<AnalysisCache(stock_id={self.stock_id}, "
+            f"tool={self.tool_name}, type={self.analysis_type})>"
+        )
+
+    def to_dict(self) -> dict:
+        """Convert to dictionary for API responses."""
+        import json
+
+        return {
+            "id": str(self.id),
+            "stock_id": str(self.stock_id),
+            "tool_name": self.tool_name,
+            "analysis_type": self.analysis_type,
+            "result": json.loads(self.result) if self.result else {},
+            "input_params": json.loads(self.input_params) if self.input_params else {},
+            "data_date_range": self.data_date_range,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+    @classmethod
+    def get_latest(
+        cls,
+        session: Session,
+        stock_id: uuid.UUID,
+        tool_name: str,
+        analysis_type: str,
+    ) -> "AnalysisCache | None":
+        """Get the most recent analysis for a stock/tool/type combination."""
+        return (
+            session.query(cls)
+            .filter(
+                cls.stock_id == stock_id,
+                cls.tool_name == tool_name,
+                cls.analysis_type == analysis_type,
+            )
+            .order_by(cls.created_at.desc())
+            .first()
+        )
+
+    @classmethod
+    def get_history(
+        cls,
+        session: Session,
+        stock_id: uuid.UUID,
+        tool_name: str | None = None,
+        limit: int = 10,
+    ) -> list["AnalysisCache"]:
+        """Get analysis history for a stock."""
+        query = session.query(cls).filter(cls.stock_id == stock_id)
+        if tool_name:
+            query = query.filter(cls.tool_name == tool_name)
+        return query.order_by(cls.created_at.desc()).limit(limit).all()
 
 
 # Auth models removed for personal use - no multi-user functionality needed

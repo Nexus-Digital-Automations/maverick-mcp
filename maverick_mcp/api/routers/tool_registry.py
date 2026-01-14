@@ -2,20 +2,18 @@
 Tool Registry for MaverickMCP.
 
 Streamlined tool registration using unified interfaces.
-Consolidates 132+ individual tools → ~40 unified tools.
+Consolidates 132+ individual tools → ~39 unified tools.
 
 Tool Categories:
-    - Unified Analysis (18 tools): Consolidated analysis tools with parameter-based dispatch
+    - Unified Analysis (20 tools): Consolidated analysis tools with parameter-based dispatch
     - OpenBB Data (9 tools): Primary data provider for all asset classes
     - Yahoo Finance (2 tools): Unique data (holders, recommendations)
-    - Data Tools (1 tool): News sentiment (stock data/info use OpenBB)
-    - Research Tools (4 tools): AI-powered research and sentiment
+    - Research Tools (2 tools): AI-powered research (comprehensive, company)
     - System Tools (2 tools): Health and performance monitoring
     - Backtesting (5 tools): Strategy testing and optimization
 """
 
 import logging
-from datetime import datetime
 
 from fastmcp import FastMCP
 
@@ -23,18 +21,20 @@ logger = logging.getLogger(__name__)
 
 
 # =============================================================================
-# UNIFIED ANALYSIS TOOLS (18 tools)
+# UNIFIED ANALYSIS TOOLS (20 tools)
 # =============================================================================
 
 
 def register_unified_tools(mcp: FastMCP) -> None:
     """Register unified analysis tools.
 
-    These tools consolidate 60+ individual analysis tools into 18 unified interfaces
+    These tools consolidate 60+ individual analysis tools into 20 unified interfaces
     with parameter-based dispatch.
     """
     from maverick_mcp.api.routers.unified import (
         alternative_data,
+        batch_stock_analysis,
+        comprehensive_stock_analysis,
         market_breadth,
         multi_timeframe,
         options_analysis,
@@ -49,6 +49,7 @@ def register_unified_tools(mcp: FastMCP) -> None:
         volatility_analysis,
         volume_analysis,
     )
+    from maverick_mcp.api.routers.unified.unified_analysis_history import analysis_history
     from maverick_mcp.api.routers.unified.unified_earnings import earnings_analysis
     from maverick_mcp.api.routers.unified.unified_macro import macro_analysis
     from maverick_mcp.api.routers.unified.unified_ml_predictions import ml_predictions
@@ -88,7 +89,14 @@ def register_unified_tools(mcp: FastMCP) -> None:
     # ML/Prediction Tools
     mcp.tool(name="ml_predictions")(ml_predictions)
 
-    logger.info("✓ Unified analysis tools registered (18 tools)")
+    # Analysis History Tool
+    mcp.tool(name="analysis_history")(analysis_history)
+
+    # Comprehensive Analysis Tools (parallel execution)
+    mcp.tool(name="comprehensive_stock_analysis")(comprehensive_stock_analysis)
+    mcp.tool(name="batch_stock_analysis")(batch_stock_analysis)
+
+    logger.info("✓ Unified analysis tools registered (21 tools)")
 
 
 # =============================================================================
@@ -359,40 +367,7 @@ def register_yahoo_tools(mcp: FastMCP) -> None:
 
 
 # =============================================================================
-# DATA TOOLS (1 tool - stock data & info now use OpenBB)
-# =============================================================================
-
-
-def register_data_tools(mcp: FastMCP) -> None:
-    """Register data fetching tools.
-
-    Note: data_fetch_stock_data and data_get_stock_info removed as redundant.
-    Use openbb_get_historical and openbb_get_equity_info instead.
-    """
-    from maverick_mcp.api.routers.news_sentiment_enhanced import (
-        get_news_sentiment_enhanced,
-    )
-
-    @mcp.tool(name="data_get_news_sentiment")
-    async def get_news_sentiment(ticker: str, timeframe: str = "7d", limit: int = 10):
-        """
-        Get news sentiment analysis using Tiingo News API or LLM analysis.
-
-        Args:
-            ticker: Stock ticker symbol
-            timeframe: Time frame for news (1d, 7d, 30d)
-            limit: Maximum number of news articles to analyze
-
-        Returns:
-            Dictionary containing sentiment analysis with confidence scores.
-        """
-        return await get_news_sentiment_enhanced(ticker, timeframe, limit)
-
-    logger.info("✓ Data tools registered (1 tool)")
-
-
-# =============================================================================
-# RESEARCH TOOLS (4 tools)
+# RESEARCH TOOLS (2 tools)
 # =============================================================================
 
 
@@ -400,10 +375,8 @@ def register_research_tools(mcp: FastMCP) -> None:
     """Register AI-powered research tools."""
     try:
         from maverick_mcp.api.routers.research import (
-            analyze_market_sentiment,
             company_comprehensive_research,
             comprehensive_research,
-            get_research_agent,
         )
 
         @mcp.tool(name="research_comprehensive")
@@ -458,61 +431,7 @@ def register_research_tools(mcp: FastMCP) -> None:
                 persona=persona,
             )
 
-        @mcp.tool(name="research_sentiment")
-        async def research_sentiment_tool(
-            topic: str, timeframe: str = "1w", persona: str = "moderate"
-        ) -> dict:
-            """
-            Analyze market sentiment for stocks, sectors, or trends.
-
-            Args:
-                topic: Topic to analyze sentiment for
-                timeframe: Time range for analysis
-                persona: Analysis style
-
-            Returns:
-                Sentiment analysis with confidence scores.
-            """
-            return await analyze_market_sentiment(
-                topic=topic, timeframe=timeframe, persona=persona
-            )
-
-        @mcp.tool(name="research_news")
-        async def research_news_tool(
-            query: str,
-            timeframe: str = "1w",
-            max_results: int = 20,
-            persona: str = "moderate",
-        ) -> dict:
-            """
-            Search for recent financial news and analysis.
-
-            Args:
-                query: News search topic
-                timeframe: Time range for news
-                max_results: Maximum articles to return
-                persona: Analysis style
-
-            Returns:
-                News articles with analysis.
-            """
-            agent = get_research_agent()
-            result = await agent.research_topic(
-                query=f"{query} news",
-                session_id=f"news_{datetime.now().timestamp()}",
-                research_scope="basic",
-                max_sources=max_results,
-                timeframe=timeframe,
-            )
-            return {
-                "success": True,
-                "query": query,
-                "news_results": result.get("processed_sources", [])[:max_results],
-                "total_found": len(result.get("processed_sources", [])),
-                "timeframe": timeframe,
-            }
-
-        logger.info("✓ Research tools registered (4 tools)")
+        logger.info("✓ Research tools registered (2 tools)")
 
     except ImportError as e:
         logger.warning(f"Research module not available: {e}")
@@ -596,12 +515,11 @@ def register_mcp_prompts_and_resources(mcp: FastMCP) -> None:
 def register_all_router_tools(mcp: FastMCP) -> None:
     """Register all tools on the main server.
 
-    Tool Summary (~40 tools):
-        - Unified Analysis: 18 tools (consolidated from 60+)
+    Tool Summary (~39 tools):
+        - Unified Analysis: 20 tools (consolidated from 60+)
         - OpenBB Data: 9 tools (equity, crypto, forex, futures, economy)
         - Yahoo Finance: 2 tools (holders, recommendations)
-        - Data Tools: 1 tool (news sentiment)
-        - Research: 4 tools (comprehensive, company, sentiment, news)
+        - Research: 2 tools (comprehensive, company)
         - System: 2 tools (health, performance)
         - Backtesting: 5 tools (backtest, compare, optimize, analyze, report)
     """
@@ -627,13 +545,7 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     except Exception as e:
         logger.error(f"✗ Failed to register Yahoo tools: {e}")
 
-    # Register data tools (1 tool)
-    try:
-        register_data_tools(mcp)
-    except Exception as e:
-        logger.error(f"✗ Failed to register data tools: {e}")
-
-    # Register research tools (4 tools)
+    # Register research tools (2 tools)
     try:
         register_research_tools(mcp)
     except Exception as e:
@@ -661,7 +573,7 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     logger.info("Tool registration complete!")
     logger.info("=" * 60)
     logger.info("")
-    logger.info("📊 UNIFIED ANALYSIS TOOLS (18):")
+    logger.info("📊 UNIFIED ANALYSIS TOOLS (20):")
     logger.info("   • technical_analysis - RSI, MACD, Bollinger, support/resistance, full")
     logger.info("   • stock_screener - maverick, bear, momentum, value, supply_demand")
     logger.info("   • risk_analysis - VaR, CVaR, drawdown, stress test, comprehensive")
@@ -680,17 +592,18 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     logger.info("   • watchlist_manage - create, list, view, add, remove, delete, performance")
     logger.info("   • simulation - Monte Carlo asset/portfolio simulation")
     logger.info("   • ml_predictions - price forecast, patterns, regime, trend, ensemble")
+    logger.info("   • comprehensive_stock_analysis - parallel analysis (4-5x faster)")
+    logger.info("   • batch_stock_analysis - multi-symbol parallel analysis")
     logger.info("")
-    logger.info("📈 DATA TOOLS (12):")
+    logger.info("📈 DATA TOOLS (11):")
     logger.info("   • OpenBB: historical, economic indicator, search, quote, info,")
     logger.info("     news, financials, treasury, calendar")
     logger.info("   • Yahoo: holder info, recommendations")
-    logger.info("   • Data: news sentiment")
     logger.info("")
-    logger.info("🔬 RESEARCH & SYSTEM (11):")
-    logger.info("   • Research: comprehensive, company, sentiment, news")
+    logger.info("🔬 RESEARCH & SYSTEM (9):")
+    logger.info("   • Research: comprehensive, company")
     logger.info("   • System: health, performance monitoring")
     logger.info("   • Backtesting: backtest, compare, optimize, analyze, report")
     logger.info("")
-    logger.info("Total: ~40 tools (consolidated from 132+)")
+    logger.info("Total: ~39 tools (consolidated from 132+)")
     logger.info("=" * 60)
