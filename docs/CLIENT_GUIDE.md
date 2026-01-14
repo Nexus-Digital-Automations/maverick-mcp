@@ -1,63 +1,63 @@
 # MaverickMCP Investment Analysis System
 
-A disciplined, value-oriented investment analysis system for Claude Desktop. Built on the principles of thorough fundamental analysis, macro trend awareness, and conservative position recommendations.
+An evidence-based investment analysis system for Claude Desktop. Presents financial data objectively and interprets it through the lens of value investing principles.
 
 ---
 
-## Investment Philosophy
+## Philosophy
 
-### Core Principles
+### Evidence First, Then Interpretation
 
-**MaverickMCP operates as a disciplined value and trends investor**, inspired by Warren Buffett's approach to capital allocation. The system is designed to:
+MaverickMCP presents evidence objectively and applies value investing principles as an interpretive framework—not as rigid rules. The goal is informed decision-making, not dictated conclusions.
 
-1. **Recommend only high-confidence opportunities** - Every recommendation requires thorough multi-dimensional analysis. No speculation, no hot tips, no FOMO-driven suggestions.
+**For every analysis, you'll see:**
+- **The Evidence** — Objective financial data, metrics, observable facts
+- **Bull Case** — What supports the investment thesis
+- **Bear Case** — What undermines it or creates risk
+- **Value Investing Lens** — How Buffett's principles apply
+- **Unanswered Questions** — What we don't know that matters
+- **Assessment** — Where the evidence points, with appropriate nuance
 
-2. **Pair macro trends with fundamental analysis** - Individual stock analysis is incomplete without understanding geopolitical forces, industry dynamics, and economic cycles that shape the operating environment.
+When evidence is genuinely mixed, we'll say so. When reasonable people could disagree, we'll acknowledge it.
 
-3. **Maintain conservative conviction thresholds** - Better to miss an opportunity than to recommend a position without sufficient margin of safety. The goal is long-term wealth preservation and growth, not short-term gains.
+### The Value Investing Framework
 
-4. **Focus on what you can understand** - Recommend only businesses with comprehensible economics, durable competitive advantages, and management integrity.
+These principles from Warren Buffett guide interpretation, but don't dictate conclusions:
 
-### The Investment Framework
+| Principle | The Question It Asks |
+|-----------|---------------------|
+| **Circle of Competence** | Can we truly understand this business? |
+| **Durable Moat** | What evidence supports lasting competitive advantage? |
+| **Management Quality** | What does capital allocation history reveal? |
+| **Margin of Safety** | What's the gap between price and intrinsic value? |
+| **Long-term Ownership** | Would this make sense to own for a decade? |
 
-Every analysis follows this hierarchy:
+### Assessment Spectrum
+
+Instead of binary BUY/AVOID, analyses use a spectrum that reflects evidence clarity:
 
 ```
-1. MACRO CONTEXT
-   └── Geopolitical trends, economic cycle, monetary policy
-
-2. INDUSTRY DYNAMICS
-   └── Competitive landscape, secular trends, disruption risks
-
-3. COMPANY FUNDAMENTALS
-   └── Business model, moat durability, capital allocation
-
-4. VALUATION DISCIPLINE
-   └── Intrinsic value estimate, margin of safety, entry patience
-
-5. RISK ASSESSMENT
-   └── Downside scenarios, correlation risks, position sizing
+ASSESSMENT SPECTRUM
+├── Strong conviction favorable (rare — evidence clearly aligns)
+├── Favorable lean (most evidence positive, some uncertainty)
+├── Mixed/Neutral (genuine uncertainty, reasonable arguments both ways)
+├── Unfavorable lean (most evidence negative, some positive)
+└── Strong conviction unfavorable (rare — evidence clearly aligns negatively)
 ```
 
-### What This System Will NOT Do
-
-- **Chase momentum** without fundamental support
-- **Recommend speculative positions** in companies without proven business models
-- **Suggest timing trades** based purely on technical signals
-- **Over-diversify** into positions lacking conviction
-- **Ignore macro headwinds** that could impair business value
+**Conviction level** reflects how clear the evidence is, not how strongly we feel.
 
 ---
 
-## Essential Tools (Simple Mode)
+## Essential Tools
 
-MaverickMCP runs in **simple mode** by default, exposing 10 essential tools optimized for disciplined investment analysis:
+MaverickMCP exposes 10 essential tools for disciplined investment analysis:
 
 | Tool | Purpose |
 |------|---------|
-| `comprehensive_stock_analysis` | Full parallel analysis combining technical, risk, quant, valuation, and simulation |
-| `technical_analysis` | Price action context, support/resistance, momentum indicators |
-| `stock_screener` | Filter universe by fundamental and technical criteria |
+| `comprehensive_stock_analysis` | Full parallel analysis: technical, risk, quant, valuation, simulation |
+| `technical_analysis` | Price action, support/resistance, momentum indicators |
+| `stock_screener` | Filter by fundamental and technical criteria |
 | `risk_analysis` | VaR, CVaR, drawdown, stress testing, position sizing |
 | `openbb_get_historical` | Price data across equities, crypto, forex, futures |
 | `openbb_get_equity_quote` | Real-time quotes and basic metrics |
@@ -66,392 +66,478 @@ MaverickMCP runs in **simple mode** by default, exposing 10 essential tools opti
 | `portfolio_analyze` | Portfolio risk, correlation, factor exposure |
 | `macro_analysis` | Yield curve, fed funds, market regime, economic cycle |
 
-*Advanced tools (40+) remain callable by name when deeper analysis is needed.*
+*40+ additional tools remain callable by name when deeper analysis is needed.*
 
 ---
 
 ## Analysis Workflow
 
-### Step 1: Macro Context First
+### Step 1: Establish Context
 
-Before analyzing any stock, understand the operating environment:
-
-```
-"What's the current macro environment? Analyze yield curve, fed funds outlook, and market regime."
-
-"How is the economic cycle affecting consumer discretionary sectors?"
-
-"What are the key geopolitical risks affecting semiconductor supply chains?"
-```
-
-**Key Macro Questions:**
-- Where are we in the economic cycle? (expansion, peak, contraction, trough)
-- What is monetary policy signaling? (hawkish, dovish, neutral)
-- What geopolitical forces could disrupt business models?
-- Which secular trends create tailwinds or headwinds?
-
-### Step 2: Industry Analysis
-
-Understand competitive dynamics before evaluating individual companies:
+Before analyzing individual stocks, understand the environment:
 
 ```
-"Run comprehensive analysis on the semiconductor industry leaders: NVDA, AMD, INTC"
-
-"Compare valuation multiples across cloud infrastructure companies"
-
-"What's the risk profile for energy sector stocks given current oil prices?"
+"What's the current macro environment?"
+"Where are we in the economic cycle?"
+"What's the yield curve signaling?"
 ```
 
-**Industry Assessment Criteria:**
-- Industry structure (consolidated vs fragmented)
-- Barriers to entry and switching costs
-- Secular growth vs cyclical exposure
-- Regulatory and technological disruption risks
+**Context matters because:** Great businesses can be poor investments in hostile environments, and mediocre businesses can outperform in favorable ones.
 
-### Step 3: Company Deep Dive
+### Step 2: Gather Evidence
 
-Only after macro and industry context, evaluate individual businesses:
+Run comprehensive analysis to collect objective data:
 
 ```
-"Run comprehensive stock analysis on AAPL with full technical, risk, quant, and valuation"
-
-"What's the intrinsic value estimate for MSFT using DCF and multiples?"
-
-"Analyze COST's competitive moat durability and capital allocation history"
+"Run comprehensive stock analysis on AAPL"
+"Show me the financial metrics for MSFT"
+"What's the valuation picture for JNJ?"
 ```
 
-**Fundamental Quality Checklist:**
-- [ ] Understandable business model
-- [ ] Durable competitive advantage (moat)
-- [ ] Consistent free cash flow generation
-- [ ] Conservative balance sheet
-- [ ] Shareholder-oriented management
-- [ ] Reasonable valuation with margin of safety
+### Step 3: Review Both Sides
 
-### Step 4: Valuation Discipline
-
-Never pay more than intrinsic value:
+Every analysis should surface arguments for AND against:
 
 ```
-"What's fair value for GOOGL? Compare DCF, multiples, and peer comps."
-
-"Is JNJ trading below intrinsic value given current yield curve environment?"
-
-"Calculate margin of safety for BRK.B at current prices"
+"What's the bull case for NVDA?"
+"What are the risks and bear arguments for GOOGL?"
+"Where could the thesis go wrong?"
 ```
 
-**Valuation Framework:**
-- **Intrinsic value** = Present value of future cash flows
-- **Margin of safety** = Discount to intrinsic value (aim for 25%+)
-- **Entry patience** = Wait for price, not for time
+### Step 4: Apply the Framework
 
-### Step 5: Risk Assessment & Position Sizing
-
-Size positions based on conviction AND risk tolerance:
+Use value investing principles as an interpretive lens:
 
 ```
-"Run risk analysis for a potential AAPL position - VaR, stress test, and sizing recommendation"
-
-"What's the correlation between my existing portfolio and adding MSFT?"
-
-"Stress test my portfolio against 2008-style and 2020-style scenarios"
+"How durable is COST's competitive moat?"
+"What margin of safety exists at current prices?"
+"Is this within our circle of competence to evaluate?"
 ```
 
-**Position Sizing Rules:**
-- Higher conviction = larger position (but never > 10% for single stock)
-- Higher volatility = smaller position
-- Higher correlation with existing holdings = smaller position
-- Uncertain macro = smaller overall equity allocation
+### Step 5: Assess with Nuance
+
+Reach a conclusion that reflects the evidence clarity:
+
+```
+"Given the evidence, where does this fall on the assessment spectrum?"
+"What conviction level is appropriate given the uncertainties?"
+"What would need to change to shift the assessment?"
+```
 
 ---
 
-## Making Recommendations
+## Analysis Output Format
 
-### The High-Confidence Standard
-
-MaverickMCP will only recommend positions when ALL of the following are satisfied:
-
-1. **Macro alignment** - No severe headwinds in economic cycle or geopolitical environment
-2. **Industry tailwinds** - Sector demonstrates secular growth or value opportunity
-3. **Quality business** - Durable moat, strong cash flows, competent management
-4. **Valuation support** - Trading below intrinsic value with adequate margin of safety
-5. **Risk-appropriate** - Fits within portfolio context and risk tolerance
-
-### Recommendation Format
-
-When conditions are met, recommendations follow this structure:
+### Standard Analysis Structure
 
 ```
-RECOMMENDATION: [BUY/HOLD/AVOID/SELL]
-CONVICTION: [HIGH/MEDIUM/LOW]
-POSITION SIZE: [% of portfolio based on risk analysis]
+## [TICKER] Analysis
 
-THESIS:
-- Primary investment rationale (2-3 sentences)
-- Key competitive advantage
-- Valuation support
+### The Evidence
 
-RISKS:
-- Primary risk factor
-- Macro/industry sensitivity
-- What would invalidate the thesis
+**Financial Health**
+- Revenue trend: [data]
+- Profit margins: [data]
+- Balance sheet: [data]
+- Cash flow: [data]
 
-ENTRY STRATEGY:
-- Target entry price range
-- Scaling approach if applicable
-- Time horizon expectation
+**Competitive Position**
+- Market share: [data]
+- Industry dynamics: [observable facts]
+- Competitive threats: [evidence]
+
+**Valuation Metrics**
+- Current P/E: [X] vs 5-year avg: [Y]
+- P/FCF: [X]
+- EV/EBITDA: [X]
+- Dividend yield: [X%]
+
+**Macro Context**
+- Sector positioning in current cycle
+- Interest rate sensitivity
+- Geopolitical exposure
+
+### Bull Case
+- [Evidence-based point 1]
+- [Evidence-based point 2]
+- [What needs to go right for thesis to work]
+
+### Bear Case
+- [Evidence-based concern 1]
+- [Evidence-based concern 2]
+- [What could go wrong]
+
+### Value Investing Lens
+
+**Circle of Competence:** [How well can we understand this business?]
+
+**Moat Assessment:** [What evidence supports/undermines competitive advantage?]
+
+**Management Quality:** [What does capital allocation history suggest?]
+
+**Intrinsic Value Range:** $[low] - $[high]
+- Conservative case: [assumptions]
+- Base case: [assumptions]
+- Optimistic case: [assumptions]
+
+**Margin of Safety:** [X%] at current price of $[Y]
+
+### Unanswered Questions
+- [Key uncertainty 1 — what we don't know that matters]
+- [Key uncertainty 2]
+
+### Assessment
+
+**Position on spectrum:** [Favorable lean / Mixed / Unfavorable lean / etc.]
+
+**Reasoning:** [Why the evidence points this direction]
+
+**Conviction level:** [High/Medium/Low] — based on evidence clarity
+
+**What would change this:**
+- Upgrade triggers: [specific conditions]
+- Downgrade triggers: [specific conditions]
+
+**Note:** [Acknowledgment of where reasonable people might disagree]
 ```
 
-### When NOT to Recommend
+---
 
-The system will explicitly decline to recommend when:
+## Example Analyses
 
-- Insufficient margin of safety exists
-- Business model is not fully understood
-- Macro environment presents elevated risks
-- Position would over-concentrate portfolio
-- Available information is inadequate for conviction
+### Example 1: Clear Favorable Case
 
-**Example decline response:**
 ```
-"While TSLA shows strong revenue growth, I cannot recommend a position at current
-valuations. The 60x forward P/E requires execution on autonomous driving and energy
-storage that remains uncertain. Additionally, EV competition is intensifying and
-regulatory tailwinds may diminish. I would revisit at significantly lower valuations
-(~30-40% below current) or upon clearer evidence of margin sustainability."
+## COST (Costco) Analysis
+
+### The Evidence
+
+**Financial Health**
+- 15 consecutive years of revenue growth
+- Operating margins stable at 3.4% (intentionally low — membership model)
+- Net debt negative (more cash than debt)
+- FCF conversion consistently strong
+
+**Competitive Position**
+- 90%+ membership renewal rate (extremely sticky)
+- Largest warehouse club globally
+- Buying power advantage compounds with scale
+
+**Valuation**
+- P/E: 52x (elevated vs market, but typical for COST)
+- 5-year avg P/E: 40x
+- Premium reflects quality, but historically reverts
+
+### Bull Case
+- Membership model creates recurring, predictable revenue
+- 90%+ renewal rate is exceptional customer loyalty evidence
+- International expansion runway (underpenetrated in Asia, Europe)
+- Inflation-resistant value proposition strengthens in uncertain times
+- Management conservative, shareholder-aligned (special dividends)
+
+### Bear Case
+- 52x P/E leaves little room for disappointment
+- Same-store sales growth moderating from pandemic highs
+- Amazon/Walmart competitive pressure on general merchandise
+- Labor costs rising, may pressure margins
+- Premium valuation assumes continued execution
+
+### Value Investing Lens
+
+**Circle of Competence:** High — retail business model is straightforward.
+Pay annual fee, get access to bulk goods at thin margins. Economics are clear.
+
+**Moat Assessment:** Strong evidence of durability
+- Membership renewal rates (90%+) demonstrate switching costs
+- Scale advantages in purchasing difficult to replicate
+- Real estate portfolio (owned, not leased) is underappreciated asset
+
+**Management Quality:** Excellent track record
+- Founder-led culture maintained post-transition
+- Capital allocation disciplined (special dividends vs empire building)
+- Employee treatment creates operational advantage
+
+**Intrinsic Value Range:** $750 - $950
+- Conservative (35x normalized earnings): $750
+- Base (42x reflecting quality): $850
+- Optimistic (50x premium sustained): $950
+
+**Margin of Safety:** Limited at $920 (current price at high end of range)
+
+### Unanswered Questions
+- Will premium multiple compress if growth slows further?
+- How much international expansion is already priced in?
+- Can membership fee increases continue without churn?
+
+### Assessment
+
+**Position on spectrum:** Favorable lean
+
+**Reasoning:** Business quality is exceptional with clear, durable competitive
+advantages. Management track record is strong. However, valuation provides
+limited margin of safety — you're paying a fair price for a great business,
+not a bargain price.
+
+**Conviction level:** Medium — business quality high conviction,
+but entry valuation introduces uncertainty about forward returns
+
+**What would change this:**
+- Upgrade: Price decline to $750 range (creates margin of safety)
+- Downgrade: Membership renewal decline below 88%, margin compression
+
+**Note:** Growth-oriented investors comfortable with quality premiums may view
+this more favorably. Deep value investors seeking margin of safety will likely
+wait for better entry points.
 ```
+
+### Example 2: Genuinely Mixed Case
+
+```
+## TSLA (Tesla) Analysis
+
+### The Evidence
+
+**Financial Health**
+- Revenue CAGR 50%+ over 5 years (exceptional growth)
+- Automotive margins compressed from 25% to 17% (price cuts)
+- $26B cash, $2B debt (fortress balance sheet)
+- FCF positive but volatile with capex cycles
+
+**Competitive Position**
+- EV market share declining as competition intensifies
+- Brand strength remains, especially in US market
+- Manufacturing efficiency (Austin, Berlin) improving
+- Charging network is genuine competitive advantage
+
+**Valuation**
+- Forward P/E: 65x
+- P/S: 8x (vs auto industry <1x)
+- Priced for significant non-auto revenue (energy, FSD)
+
+### Bull Case
+- Global EV transition creates multi-decade tailwind
+- Energy storage business growing 100%+ (underappreciated)
+- FSD technology, if realized, transforms unit economics
+- Manufacturing expertise and cost position improving
+- Musk's execution track record despite controversy
+- Brand loyalty creates pricing power
+
+### Bear Case
+- 65x forward P/E requires exceptional execution across multiple bets
+- FSD timeline repeatedly missed — regulatory path unclear
+- Chinese EV competition intensifying (BYD, NIO, Xiaomi)
+- Legacy automakers scaling EV production (Ford, GM, VW)
+- Margin pressure may be structural, not cyclical
+- Key person risk (Musk distraction, reputation)
+- Regulatory tailwinds (EV credits) diminishing
+
+### Value Investing Lens
+
+**Circle of Competence:** Challenging
+The bull case requires assessing: (1) autonomous driving technology timelines,
+(2) robotics potential, (3) energy storage market evolution. These are difficult
+to evaluate with confidence.
+
+**Moat Assessment:** Mixed evidence
+- Brand and charging network: durable advantages with evidence
+- Manufacturing: improving but replicable
+- Technology: unproven at scale, timeline uncertain
+
+**Management Quality:** Complicated
+- Execution on production scaling: exceptional
+- Capital allocation: reasonable (no dilution, minimal debt)
+- Focus and attention: legitimately uncertain given other ventures
+
+**Intrinsic Value Range:** Wide dispersion reflecting uncertainty
+- Conservative (auto-only, compressed multiples): $120
+- Base (moderate energy/FSD value): $250
+- Optimistic (significant FSD/robotaxi value): $500+
+
+**Margin of Safety:** Negative at $380 vs conservative case
+
+### Unanswered Questions
+- When (if ever) does FSD achieve regulatory approval for robotaxi?
+- Will energy storage scale profitably?
+- Is margin compression cyclical or structural?
+- How much automotive market share loss is acceptable?
+
+### Assessment
+
+**Position on spectrum:** Mixed/Neutral for traditional value investors
+
+**Reasoning:** The evidence genuinely supports both bullish and bearish
+conclusions depending on which assumptions you make about unknowable future
+outcomes. The business has real strengths, but the valuation requires success
+in areas we cannot confidently assess.
+
+**Conviction level:** Low — not because the business is bad, but because
+the thesis depends on outcomes outside our analytical confidence
+
+**What would change this:**
+- More favorable: Price decline creating margin of safety ($150-180 range),
+  or concrete FSD regulatory approval
+- Less favorable: Continued margin compression, market share erosion
+  accelerating beyond EV transition
+
+**Note:** This is a case where reasonable, intelligent investors can reach
+opposite conclusions. Growth investors with tech expertise and higher risk
+tolerance may see compelling opportunity. Traditional value investors will
+likely pass due to valuation and circle of competence concerns. Neither
+view is obviously wrong.
+```
+
+### Example 3: Clear Unfavorable Case
+
+```
+## [Hypothetical Overleveraged Company] Analysis
+
+### The Evidence
+
+**Financial Health**
+- Revenue declining 8% annually for 3 years
+- Operating margins negative (-5%)
+- Debt/EBITDA: 8x (dangerous territory)
+- Negative free cash flow, burning cash
+
+**Competitive Position**
+- Market share eroding to lower-cost competitors
+- Product relevance declining (secular headwind)
+- No clear path to competitive differentiation
+
+### Bull Case
+- Asset value exceeds market cap (liquidation floor)
+- Turnaround management recently hired
+- Industry consolidation could drive acquisition premium
+
+### Bear Case
+- Leverage makes equity highly vulnerable
+- Declining business cannot service debt long-term
+- Turnarounds in secular decline rarely succeed
+- Time is enemy with cash burn
+
+### Value Investing Lens
+
+**Circle of Competence:** Business is understandable, but thesis requires
+predicting turnaround success — historically low probability
+
+**Moat Assessment:** No evidence of competitive advantage; business is
+commodity with cost disadvantage
+
+**Management Quality:** New team, no track record to evaluate
+
+**Margin of Safety:** Apparent cheapness is likely value trap — assets
+may not realize stated value in distress
+
+### Assessment
+
+**Position on spectrum:** Strong conviction unfavorable
+
+**Reasoning:** Declining business with dangerous leverage and no competitive
+advantage. Apparent cheapness reflects genuine distress, not opportunity.
+Asset floor less reliable with forced liquidation potential.
+
+**Conviction level:** High — evidence clearly points one direction
+
+**What would change this:**
+- Debt restructuring that materially de-risks equity
+- Concrete evidence of business stabilization (not promises)
+
+**Note:** Distressed debt specialists may find opportunity in the capital
+structure, but equity appears to carry uncompensated risk.
+```
+
+---
+
+## Intellectual Honesty Principles
+
+### What We Acknowledge
+
+**Limitations we're explicit about:**
+- Valuation is estimation, not precision — we provide ranges, not point targets
+- The future is uncertain — macro conditions, competitive dynamics, and management decisions can change
+- Our circle of competence has boundaries — some businesses are harder to evaluate
+- Timing is beyond our ability — we assess value, not when the market will recognize it
+
+**When we say "we don't know":**
+- Technology trajectories requiring specialized expertise
+- Regulatory outcomes dependent on political processes
+- Consumer behavior shifts without historical precedent
+- Short-term price movements
+
+### Questions We Always Ask
+
+1. **What's the evidence?** (Not: what do we want to believe?)
+2. **What are we assuming?** (And are those assumptions testable?)
+3. **What would prove us wrong?** (And are we watching for it?)
+4. **Where might we be biased?** (Recent performance, narrative appeal, etc.)
+5. **Would Buffett understand this?** (Circle of competence check)
 
 ---
 
 ## Portfolio Management
 
-### Building a Concentrated Quality Portfolio
-
-Following Buffett's approach of concentrated bets on high-conviction ideas:
+### Tracking Positions
 
 ```
 "Add 100 shares of AAPL at $175 to my portfolio"
 "Show my portfolio with current P&L"
-"Analyze portfolio correlation and concentration risk"
+"What's my overall risk exposure?"
 ```
 
-**Portfolio Construction Principles:**
-- 10-20 positions maximum for adequate attention
-- Top 5 positions represent 50%+ of portfolio
-- New additions require removing lower-conviction holdings
-- Regular review of thesis validity for all positions
+### Reviewing Holdings
 
-### Monitoring Holdings
+For each position, periodically reassess:
+- Has the original thesis changed?
+- Is the evidence still supportive?
+- Has the margin of safety expanded or compressed?
+- Are there better opportunities for the capital?
 
-```
-"How are my portfolio holdings performing against their original thesis?"
-"Run risk analysis on my current portfolio"
-"Which positions have deteriorated fundamentally?"
-```
+### Position Sizing Philosophy
 
-**Review triggers requiring analysis:**
-- 20%+ price decline from entry
-- Significant change in competitive position
-- Management turnover or capital allocation shift
-- Macro regime change affecting industry
+- **Higher conviction + clearer evidence** → larger position (but diversified)
+- **Mixed evidence or lower conviction** → smaller position or avoid
+- **Correlation awareness** — don't concentrate in correlated bets
 
 ---
 
 ## Macro Analysis
 
-### Economic Cycle Awareness
+### Understanding Context
 
 ```
 "What phase of the economic cycle are we in?"
-"Analyze yield curve for recession signals"
-"How are fed funds expectations affecting valuations?"
+"How is the yield curve positioned?"
+"What are the dominant geopolitical risks?"
 ```
 
-**Cycle-Aware Positioning:**
-- **Expansion**: Quality growth at reasonable prices
-- **Peak**: Reduce cyclical exposure, increase cash
-- **Contraction**: Defensive quality, prepare shopping list
-- **Trough**: Deploy cash into high-quality bargains
+### Why Macro Matters
 
-### Geopolitical Trend Monitoring
-
-```
-"What geopolitical risks should I monitor for tech sector holdings?"
-"How do US-China relations affect my semiconductor positions?"
-"Analyze supply chain concentration risks in my portfolio"
-```
-
----
-
-## Stock Screening
-
-### Value-Oriented Screens
-
-```
-"Screen for stocks with P/E below 15, ROE above 15%, and debt-to-equity below 0.5"
-"Find dividend aristocrats trading below historical P/E averages"
-"Screen for companies with consistent free cash flow growth over 5 years"
-```
-
-### Quality Screens
-
-```
-"Find stocks with wide moat characteristics - high ROIC, consistent margins"
-"Screen for companies with insider buying and low institutional ownership"
-"Identify businesses with pricing power indicators"
-```
-
----
-
-## Risk Management
-
-### Understanding Risk Metrics
-
-```
-"Calculate 95% VaR for my portfolio over 1-year horizon"
-"What's the maximum drawdown I should expect?"
-"Run Monte Carlo simulation for my portfolio"
-```
-
-**Key Risk Metrics:**
-- **VaR (Value at Risk)**: Maximum expected loss at confidence level
-- **CVaR (Conditional VaR)**: Expected loss when VaR is breached
-- **Max Drawdown**: Worst peak-to-trough decline
-- **Sharpe Ratio**: Risk-adjusted return measure
-
-### Stress Testing
-
-```
-"Stress test my portfolio against 2008 financial crisis scenario"
-"How would my holdings perform in a stagflation environment?"
-"Test portfolio against rapid interest rate increases"
-```
-
----
-
-## Example Analysis Session
-
-Here's how a disciplined analysis session flows:
-
-### 1. Start with Macro Context
-```
-User: "I'm considering adding to my portfolio. What's the current macro environment?"
-
-Claude: "Let me analyze the macro context first..."
-[Runs macro_analysis for yield curve, fed funds, regime]
-
-"The current environment shows:
-- Yield curve: Normal, slight steepening (not signaling recession)
-- Fed stance: Neutral to dovish, rates likely stable
-- Market regime: Low volatility, trending higher
-- Economic indicators: GDP growth moderate, employment strong
-
-This is generally supportive for quality equities, though valuations in some
-sectors are extended. I'd focus on reasonably-valued quality names rather
-than growth-at-any-price opportunities."
-```
-
-### 2. Then Industry Focus
-```
-User: "I'm interested in healthcare. What looks attractive?"
-
-Claude: "Let me screen and analyze the healthcare sector..."
-[Runs stock_screener with healthcare filters]
-[Runs comprehensive_stock_analysis on top candidates]
-
-"Healthcare offers interesting opportunities given:
-- Defensive characteristics suit current cycle uncertainty
-- Demographic tailwinds from aging population
-- Reasonable valuations vs tech/consumer discretionary
-
-Top candidates meeting quality and value criteria:
-1. JNJ - Wide moat, dividend aristocrat, trading at discount to historical
-2. UNH - Market leader, consistent growth, reasonable multiple
-3. ABBV - Strong cash flows, pipeline optionality, attractive yield
-
-Let me run detailed analysis on each..."
-```
-
-### 3. Company Deep Dive
-```
-User: "Tell me more about JNJ"
-
-Claude: [Runs comprehensive_stock_analysis on JNJ]
-
-"Johnson & Johnson Analysis:
-
-BUSINESS QUALITY:
-- 130+ year operating history with consistent profitability
-- Three diversified segments (pharma, medtech, consumer)
-- 61 consecutive years of dividend increases
-- Investment grade balance sheet (AA- rated)
-
-COMPETITIVE MOAT:
-- Brand strength in consumer health
-- Scale advantages in pharmaceutical R&D
-- Regulatory expertise and clinical trial capabilities
-
-VALUATION:
-- P/E: 14.5x (vs 5-year avg 17x)
-- P/FCF: 16x (reasonable for quality)
-- Dividend yield: 3.2% (well covered)
-
-RISKS:
-- Talc litigation overhang (quantifiable, reserved)
-- Patent cliffs on key drugs (pipeline addresses)
-- Consumer segment spin-off execution
-
-RECOMMENDATION: BUY at current levels
-CONVICTION: HIGH
-SUGGESTED POSITION: 4-5% of portfolio
-MARGIN OF SAFETY: ~15% below intrinsic value estimate
-
-Thesis: Temporary litigation concerns have created entry point in
-a best-in-class healthcare conglomerate with durable moats and
-shareholder-friendly capital allocation."
-```
-
-### 4. Position Sizing
-```
-User: "How much should I allocate?"
-
-Claude: [Runs risk_analysis and portfolio_analyze]
-
-"Position sizing recommendation based on:
-- High conviction level
-- Low correlation with existing tech-heavy holdings
-- Defensive characteristics suit macro uncertainty
-- Dividend income provides return floor
-
-Recommended allocation: 4-5% of portfolio
-Entry approach: Full position at current prices (margin of safety exists)
-Stop consideration: Would reassess on fundamental deterioration, not price
-
-This addition would improve portfolio diversification and reduce
-overall volatility while maintaining quality standards."
-```
+Great businesses in hostile macro environments can underperform. The context doesn't override fundamental analysis, but it influences:
+- Sector positioning
+- Valuation multiples market will pay
+- Risk appetite appropriate for current conditions
 
 ---
 
 ## Key Reminders
 
-### Before Every Investment Decision
+### Before Analysis
 
-1. **Do I understand this business?** If not, pass.
-2. **Is the competitive advantage durable?** 10+ year view required.
-3. **Is management aligned with shareholders?** Track record matters.
-4. **Am I paying a fair price?** Margin of safety is non-negotiable.
-5. **Does this fit my portfolio?** Correlation and concentration matter.
-6. **What could go wrong?** Understand risks before rewards.
+1. **Seek evidence, not confirmation** — Actively look for disconfirming data
+2. **Acknowledge uncertainty** — Comfort with "I don't know" is a feature
+3. **Remember the framework** — Buffett's principles are guides, not laws
 
-### The Patience Imperative
+### During Analysis
 
-*"The stock market is a device for transferring money from the impatient to the patient."* — Warren Buffett
+1. **Present both sides** — Bull and bear cases deserve fair treatment
+2. **Be specific about assumptions** — What must be true for thesis to work?
+3. **Quantify when possible** — Ranges > point estimates > hand-waving
 
-- Great businesses at fair prices > Good businesses at cheap prices
-- Cash is a position — being patient is an active choice
-- The best opportunities come during market dislocations
-- Compounding requires time — minimize turnover
+### After Analysis
+
+1. **Match conviction to evidence clarity** — Don't overstate confidence
+2. **Acknowledge reasonable disagreement** — Smart people can see it differently
+3. **Define what would change the view** — Make it falsifiable
 
 ---
 
@@ -461,27 +547,24 @@ overall volatility while maintaining quality standards."
 
 | Need | Command |
 |------|---------|
-| Full macro context | "Analyze current macro environment and regime" |
-| Deep stock analysis | "Run comprehensive analysis on [TICKER]" |
-| Valuation check | "What's fair value for [TICKER]?" |
-| Risk assessment | "Run risk analysis including stress tests for [TICKER]" |
-| Portfolio review | "Analyze my portfolio risk and correlation" |
-| Screen for value | "Screen for quality stocks trading below intrinsic value" |
-| Economic data | "Show economic indicators and yield curve status" |
+| Full analysis | "Run comprehensive analysis on [TICKER]" |
+| Macro context | "What's the current macro environment?" |
+| Valuation | "What's the intrinsic value range for [TICKER]?" |
+| Both sides | "What are the bull and bear cases for [TICKER]?" |
+| Risk assessment | "Run risk analysis on [TICKER]" |
+| Portfolio review | "Analyze my portfolio" |
 
-### Investment Decision Checklist
+### The Buffett Checklist
 
-- [ ] Macro environment assessed
-- [ ] Industry dynamics understood
-- [ ] Business model comprehensible
-- [ ] Competitive moat durable
-- [ ] Valuation provides margin of safety
-- [ ] Risks identified and acceptable
-- [ ] Portfolio fit confirmed
-- [ ] Position size appropriate
+- [ ] Do I understand this business?
+- [ ] Is there evidence of a durable moat?
+- [ ] Is management aligned with shareholders?
+- [ ] Does margin of safety exist at current price?
+- [ ] Would I be comfortable owning this for 10 years?
+- [ ] What could go wrong?
 
 ---
 
-*MaverickMCP — Disciplined value investing powered by Claude*
+*MaverickMCP — Evidence-based analysis through a value investing lens*
 
-*"Price is what you pay. Value is what you get."* — Warren Buffett
+*"Risk comes from not knowing what you're doing."* — Warren Buffett
