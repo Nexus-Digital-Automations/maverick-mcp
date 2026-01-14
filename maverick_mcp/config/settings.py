@@ -63,6 +63,12 @@ class APISettings(BaseModel):
         description="Exa API key",
     )
 
+    # DeepSeek API key (cheapest LLM option)
+    deepseek_api_key: str | None = Field(
+        default_factory=lambda: os.getenv("DEEPSEEK_API_KEY"),
+        description="DeepSeek API key for cost-effective AI operations",
+    )
+
 
 class DataProviderSettings(BaseModel):
     """Data provider configuration settings."""
@@ -803,6 +809,40 @@ class MiddlewareConfig(BaseModel):
     )
 
 
+class ToolModeConfig(BaseModel):
+    """Tool exposure mode configuration.
+
+    Controls which tools are visible to MCP clients.
+    - 'simple': 10 essential tools (default, cleaner for Claude Desktop)
+    - 'full': All ~40 tools
+    """
+
+    mode: str = Field(
+        default_factory=lambda: os.getenv("MAVERICK_TOOL_MODE", "simple"),
+        description="Tool mode: 'simple' (10 tools) or 'full' (40 tools)",
+    )
+
+    essential_tools: set[str] = Field(
+        default={
+            # Core Analysis (4 tools)
+            "comprehensive_stock_analysis",  # All-in-one parallel analysis
+            "technical_analysis",  # RSI, MACD, Bollinger, support/resistance
+            "stock_screener",  # Find stocks by criteria
+            "risk_analysis",  # VaR, CVaR, drawdown, stress testing
+            # Data Access (3 tools)
+            "openbb_get_historical",  # Price data for any asset class
+            "openbb_get_equity_quote",  # Real-time quotes
+            "openbb_get_economic_indicator",  # CPI, GDP, unemployment, FRED
+            # Portfolio (2 tools)
+            "portfolio_manage",  # Add/remove/view positions
+            "portfolio_analyze",  # Risk, correlation, attribution
+            # Market Context (1 tool)
+            "macro_analysis",  # Yield curve, fed funds, market regime
+        },
+        description="Tools to expose in 'simple' mode",
+    )
+
+
 class ValidationConfig(BaseModel):
     """Input validation configuration settings."""
 
@@ -905,6 +945,9 @@ class Settings(BaseModel):
     )
     validation: ValidationConfig = Field(
         default_factory=ValidationConfig, description="Validation settings"
+    )
+    tool_mode: ToolModeConfig = Field(
+        default_factory=ToolModeConfig, description="Tool exposure mode settings"
     )
 
 

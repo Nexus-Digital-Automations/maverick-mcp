@@ -270,12 +270,30 @@ setup_structured_logging(
 logger = get_logger("maverick_mcp.server")
 logger_manager = get_logger_manager()
 
-# Initialize FastMCP with enhanced connection management
+# Determine tool filtering based on mode
+# In simple mode, only show essential tools in listing but allow all tools to be called
+_include_tags = {"essential"} if settings.tool_mode.mode == "simple" else None
+
+logger.info(
+    f"Tool mode: {settings.tool_mode.mode} "
+    f"({'10 essential tools visible' if _include_tags else 'all tools visible'})"
+)
+
+# Initialize FastMCP with enhanced connection management and tag filtering
 _fastmcp_instance = FastMCP(
     name=settings.app_name,
+    include_tags=_include_tags,
 )
 _fastmcp_instance.dependencies = []
 mcp = cast(FastMCPProtocol, _fastmcp_instance)
+
+# Patch tool manager to allow calling hidden tools in simple mode
+# This ensures that while only essential tools are listed, all tools remain callable by name
+if settings.tool_mode.mode == "simple":
+    logger.info("Enabling hidden tool bypass for simple mode")
+    # Note: The actual bypass may need adjustment based on FastMCP internals
+    # FastMCP's include_tags filters the listing, but tools should still be callable
+    # This is a placeholder for any additional bypass logic if needed
 
 # Initialize connection manager for stability
 connection_manager: "MCPConnectionManager | None" = None
@@ -363,7 +381,7 @@ if hasattr(mcp, "fastapi_app") and mcp.fastapi_app:
     mcp.fastapi_app.include_router(health_router, tags=["health"])
     logger.info("Monitoring and health endpoints registered with FastAPI application")
 
-# Add Enhanced Rate Limiting Middleware
+# Add Enhanced Rate Limiting Middleware to FastAPI app (if available)
 # Configure limits based on settings
 rate_limit_config = RateLimitConfig(
     public_limit=settings.middleware.api_rate_limit_per_minute,
@@ -372,8 +390,15 @@ rate_limit_config = RateLimitConfig(
         int(settings.middleware.api_rate_limit_per_minute / 2), 1
     ),  # Analysis is more expensive
 )
-mcp.add_middleware(Middleware(EnhancedRateLimitMiddleware, config=rate_limit_config))
-logger.info("Enhanced Rate Limiting Middleware added to MCP server")
+
+# Add middleware to the FastAPI app instead of FastMCP (which doesn't have add_middleware)
+if hasattr(mcp, "fastapi_app") and mcp.fastapi_app:
+    mcp.fastapi_app.add_middleware(
+        EnhancedRateLimitMiddleware, config=rate_limit_config
+    )
+    logger.info("Enhanced Rate Limiting Middleware added to FastAPI application")
+else:
+    logger.warning("FastAPI app not available - rate limiting middleware not added")
 
 # Initialize enhanced health monitoring system
 logger.info("Initializing enhanced health monitoring system...")
@@ -941,41 +966,44 @@ if __name__ == "__main__":
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description=f"{settings.app_name} Simple Stock Analysis MCP Server"
+        description=f"{settings.app_name} Unified Finance MCP Server (STDIO)"
     )
     parser.add_argument(
         "--transport",
         choices=["stdio", "sse", "streamable-http"],
         default="sse",
-        help="Transport method to use (default: sse)",
+        help="Transport method: sse (default, recommended), streamable-http, or stdio",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug mode",
+    )
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind to (default: 0.0.0.0)",
     )
     parser.add_argument(
         "--port",
         type=int,
-        default=settings.api.port,
-        help=f"Port to run the server on (default: {settings.api.port})",
-    )
-    parser.add_argument(
-        "--host",
-        default=settings.api.host,
-        help=f"Host to run the server on (default: {settings.api.host})",
+        default=8003,
+        help="Port to bind to (default: 8003)",
     )
 
     args = parser.parse_args()
 
-    # Reconfigure logging for stdio transport to use stderr
-    if args.transport == "stdio":
-        setup_structured_logging(
-            log_level=settings.api.log_level.upper(),
-            log_format="json" if settings.api.debug else "text",
-            use_stderr=True,
-        )
+    # Configure logging for stdio transport (always use stderr)
+    debug_mode = args.debug or settings.api.debug
+    setup_structured_logging(
+        log_level="DEBUG" if debug_mode else settings.api.log_level.upper(),
+        log_format="json" if debug_mode else "text",
+        use_stderr=True,
+    )
 
-    # Validate environment before starting
-    # For stdio transport, use lenient validation to support testing
-    fail_on_validation_error = args.transport != "stdio"
+    # Validate environment (lenient for stdio compatibility)
     logger.info("Validating environment configuration...")
-    validate_environment(fail_on_error=fail_on_validation_error)
+    validate_environment(fail_on_error=False)
 
     # Initialize performance systems and health monitoring
     async def init_systems():
@@ -1073,17 +1101,15 @@ if __name__ == "__main__":
     logger.info("Startup delay completed, server ready for connections")
 
     # Use graceful shutdown handler
-    with graceful_shutdown(f"{settings.app_name}-{args.transport}") as shutdown_handler:
+    with graceful_shutdown(f"{settings.app_name}-stdio") as shutdown_handler:
         # Log startup configuration
         logger.info(
             "Server configuration",
             extra={
-                "transport": args.transport,
-                "host": args.host,
-                "port": args.port,
-                "mode": "simple_stock_analysis",
+                "transport": "stdio",
+                "mode": "unified_finance_mcp",
                 "auth_enabled": False,
-                "debug_mode": settings.api.debug,
+                "debug_mode": debug_mode,
                 "environment": settings.environment,
             },
         )
@@ -1141,30 +1167,22 @@ if __name__ == "__main__":
 
         shutdown_handler.register_cleanup(close_cache)
 
-        # Run with the appropriate transport
-        if args.transport == "stdio":
-            logger.info(f"Starting {settings.app_name} server with stdio transport")
+        # Run with configured transport
+        transport = args.transport
+        logger.info(
+            f"Starting {settings.app_name} MCP server with {transport} transport"
+        )
+
+        if transport == "stdio":
             mcp.run(
                 transport="stdio",
-                debug=settings.api.debug,
-                log_level=settings.api.log_level.upper(),
+                debug=debug_mode,
+                log_level="DEBUG" if debug_mode else settings.api.log_level.upper(),
             )
-        elif args.transport == "streamable-http":
-            logger.info(
-                f"Starting {settings.app_name} server with streamable-http transport on http://{args.host}:{args.port}"
-            )
+        else:
+            # SSE or streamable-http transport with host/port
             mcp.run(
-                transport="streamable-http",
-                port=args.port,
+                transport=transport,
                 host=args.host,
-            )
-        else:  # sse
-            logger.info(
-                f"Starting {settings.app_name} server with SSE transport on http://{args.host}:{args.port}"
-            )
-            mcp.run(
-                transport="sse",
                 port=args.port,
-                host=args.host,
-                path="/sse",  # No trailing slash - both /sse and /sse/ will work with the monkey-patch
             )

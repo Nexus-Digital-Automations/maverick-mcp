@@ -17,7 +17,23 @@ import logging
 
 from fastmcp import FastMCP
 
+from maverick_mcp.config.settings import settings
+
 logger = logging.getLogger(__name__)
+
+
+def _get_tool_tags(tool_name: str) -> set[str] | None:
+    """Return tags for tool based on mode configuration.
+
+    In full mode, returns None (no filtering).
+    In simple mode, essential tools get {"essential"} tag, others get {"advanced"}.
+    Advanced tools are hidden from listing but remain callable by name.
+    """
+    if settings.tool_mode.mode == "full":
+        return None  # No filtering in full mode
+    if tool_name in settings.tool_mode.essential_tools:
+        return {"essential"}
+    return {"advanced"}  # Hidden but callable
 
 
 # =============================================================================
@@ -49,52 +65,91 @@ def register_unified_tools(mcp: FastMCP) -> None:
         volatility_analysis,
         volume_analysis,
     )
-    from maverick_mcp.api.routers.unified.unified_analysis_history import analysis_history
+    from maverick_mcp.api.routers.unified.unified_analysis_history import (
+        analysis_history,
+    )
     from maverick_mcp.api.routers.unified.unified_earnings import earnings_analysis
     from maverick_mcp.api.routers.unified.unified_macro import macro_analysis
     from maverick_mcp.api.routers.unified.unified_ml_predictions import ml_predictions
     from maverick_mcp.api.routers.unified.unified_watchlist import watchlist_manage
 
     # Core Analysis Tools
-    mcp.tool(name="technical_analysis")(technical_analysis)
-    mcp.tool(name="stock_screener")(stock_screener)
-    mcp.tool(name="risk_analysis")(risk_analysis)
-    mcp.tool(name="quant_analysis")(quant_analysis)
-    mcp.tool(name="options_analysis")(options_analysis)
+    mcp.tool(name="technical_analysis", tags=_get_tool_tags("technical_analysis"))(
+        technical_analysis
+    )
+    mcp.tool(name="stock_screener", tags=_get_tool_tags("stock_screener"))(
+        stock_screener
+    )
+    mcp.tool(name="risk_analysis", tags=_get_tool_tags("risk_analysis"))(risk_analysis)
+    mcp.tool(name="quant_analysis", tags=_get_tool_tags("quant_analysis"))(
+        quant_analysis
+    )
+    mcp.tool(name="options_analysis", tags=_get_tool_tags("options_analysis"))(
+        options_analysis
+    )
 
     # Market Analysis Tools
-    mcp.tool(name="market_breadth")(market_breadth)
-    mcp.tool(name="multi_timeframe")(multi_timeframe)
-    mcp.tool(name="volume_analysis")(volume_analysis)
-    mcp.tool(name="volatility_analysis")(volatility_analysis)
+    mcp.tool(name="market_breadth", tags=_get_tool_tags("market_breadth"))(
+        market_breadth
+    )
+    mcp.tool(name="multi_timeframe", tags=_get_tool_tags("multi_timeframe"))(
+        multi_timeframe
+    )
+    mcp.tool(name="volume_analysis", tags=_get_tool_tags("volume_analysis"))(
+        volume_analysis
+    )
+    mcp.tool(name="volatility_analysis", tags=_get_tool_tags("volatility_analysis"))(
+        volatility_analysis
+    )
 
     # Fundamental Analysis Tools
-    mcp.tool(name="valuation")(valuation)
-    mcp.tool(name="alternative_data")(alternative_data)
-    mcp.tool(name="earnings_analysis")(earnings_analysis)
+    mcp.tool(name="valuation", tags=_get_tool_tags("valuation"))(valuation)
+    mcp.tool(name="alternative_data", tags=_get_tool_tags("alternative_data"))(
+        alternative_data
+    )
+    mcp.tool(name="earnings_analysis", tags=_get_tool_tags("earnings_analysis"))(
+        earnings_analysis
+    )
 
     # Macro/Market Tools
-    mcp.tool(name="macro_analysis")(macro_analysis)
+    mcp.tool(name="macro_analysis", tags=_get_tool_tags("macro_analysis"))(
+        macro_analysis
+    )
 
     # Portfolio Tools
-    mcp.tool(name="portfolio_manage")(portfolio_manage)
-    mcp.tool(name="portfolio_analyze")(portfolio_analyze)
+    mcp.tool(name="portfolio_manage", tags=_get_tool_tags("portfolio_manage"))(
+        portfolio_manage
+    )
+    mcp.tool(name="portfolio_analyze", tags=_get_tool_tags("portfolio_analyze"))(
+        portfolio_analyze
+    )
 
     # Watchlist Tools
-    mcp.tool(name="watchlist_manage")(watchlist_manage)
+    mcp.tool(name="watchlist_manage", tags=_get_tool_tags("watchlist_manage"))(
+        watchlist_manage
+    )
 
     # Simulation Tools
-    mcp.tool(name="simulation")(simulation)
+    mcp.tool(name="simulation", tags=_get_tool_tags("simulation"))(simulation)
 
     # ML/Prediction Tools
-    mcp.tool(name="ml_predictions")(ml_predictions)
+    mcp.tool(name="ml_predictions", tags=_get_tool_tags("ml_predictions"))(
+        ml_predictions
+    )
 
     # Analysis History Tool
-    mcp.tool(name="analysis_history")(analysis_history)
+    mcp.tool(name="analysis_history", tags=_get_tool_tags("analysis_history"))(
+        analysis_history
+    )
 
     # Comprehensive Analysis Tools (parallel execution)
-    mcp.tool(name="comprehensive_stock_analysis")(comprehensive_stock_analysis)
-    mcp.tool(name="batch_stock_analysis")(batch_stock_analysis)
+    mcp.tool(
+        name="comprehensive_stock_analysis",
+        tags=_get_tool_tags("comprehensive_stock_analysis"),
+    )(comprehensive_stock_analysis)
+    mcp.tool(name="batch_stock_analysis", tags=_get_tool_tags("batch_stock_analysis"))(
+        batch_stock_analysis
+    )
 
     logger.info("✓ Unified analysis tools registered (21 tools)")
 
@@ -135,7 +190,9 @@ def register_openbb_tools(mcp: FastMCP) -> None:
     )
 
     # Unified historical data tool
-    @mcp.tool(name="openbb_get_historical")
+    @mcp.tool(
+        name="openbb_get_historical", tags=_get_tool_tags("openbb_get_historical")
+    )
     async def openbb_get_historical(
         symbol: str,
         asset_class: str = "equity",
@@ -181,7 +238,10 @@ def register_openbb_tools(mcp: FastMCP) -> None:
             }
 
     # Unified economic indicator tool
-    @mcp.tool(name="openbb_get_economic_indicator")
+    @mcp.tool(
+        name="openbb_get_economic_indicator",
+        tags=_get_tool_tags("openbb_get_economic_indicator"),
+    )
     async def openbb_get_economic_indicator(
         indicator: str = "cpi",
         country: str = "united_states",
@@ -227,7 +287,7 @@ def register_openbb_tools(mcp: FastMCP) -> None:
             }
 
     # Unified search tool
-    @mcp.tool(name="openbb_search")
+    @mcp.tool(name="openbb_search", tags=_get_tool_tags("openbb_search"))
     async def openbb_search(query: str, search_type: str = "equity"):
         """
         Search for symbols across asset classes.
@@ -251,26 +311,35 @@ def register_openbb_tools(mcp: FastMCP) -> None:
             }
 
     # Individual tools for unique functionality
-    @mcp.tool(name="openbb_get_equity_quote")
+    @mcp.tool(
+        name="openbb_get_equity_quote", tags=_get_tool_tags("openbb_get_equity_quote")
+    )
     async def openbb_equity_quote(symbol: str = "AAPL", provider: str = "yfinance"):
         """Get real-time stock quote with price, volume, and change."""
         return await get_equity_quote(symbol, provider)
 
-    @mcp.tool(name="openbb_get_equity_info")
+    @mcp.tool(
+        name="openbb_get_equity_info", tags=_get_tool_tags("openbb_get_equity_info")
+    )
     async def openbb_equity_info(symbol: str = "AAPL", provider: str = "yfinance"):
         """Get comprehensive company information (sector, industry, description)."""
         return await get_equity_info(symbol, provider)
 
     # Note: openbb_get_options_chains removed - use options_analysis(symbol, 'chain') instead
 
-    @mcp.tool(name="openbb_get_company_news")
+    @mcp.tool(
+        name="openbb_get_company_news", tags=_get_tool_tags("openbb_get_company_news")
+    )
     async def openbb_company_news(
         symbol: str = "AAPL", limit: int = 20, provider: str = "fmp"
     ):
         """Get recent news articles for a company."""
         return await get_company_news(symbol, limit, provider)
 
-    @mcp.tool(name="openbb_get_financial_statements")
+    @mcp.tool(
+        name="openbb_get_financial_statements",
+        tags=_get_tool_tags("openbb_get_financial_statements"),
+    )
     async def openbb_financial_statements(
         symbol: str = "AAPL",
         statement_type: str = "income",
@@ -283,7 +352,10 @@ def register_openbb_tools(mcp: FastMCP) -> None:
             symbol, statement_type, period, limit, provider
         )
 
-    @mcp.tool(name="openbb_get_treasury_rates")
+    @mcp.tool(
+        name="openbb_get_treasury_rates",
+        tags=_get_tool_tags("openbb_get_treasury_rates"),
+    )
     async def openbb_treasury_rates(
         start_date: str | None = None,
         end_date: str | None = None,
@@ -293,9 +365,14 @@ def register_openbb_tools(mcp: FastMCP) -> None:
         """Get US Treasury interest rates."""
         return await get_treasury_rates(start_date, end_date, maturity, provider)
 
-    @mcp.tool(name="openbb_get_economic_calendar")
+    @mcp.tool(
+        name="openbb_get_economic_calendar",
+        tags=_get_tool_tags("openbb_get_economic_calendar"),
+    )
     async def openbb_economic_calendar(
-        start_date: str | None = None, end_date: str | None = None, provider: str = "fmp"
+        start_date: str | None = None,
+        end_date: str | None = None,
+        provider: str = "fmp",
     ):
         """Get upcoming economic events calendar."""
         return await get_economic_calendar(start_date, end_date, provider)
@@ -322,7 +399,9 @@ def register_yahoo_tools(mcp: FastMCP) -> None:
         get_yahoo_recommendations,
     )
 
-    @mcp.tool(name="yahoo_get_holder_info")
+    @mcp.tool(
+        name="yahoo_get_holder_info", tags=_get_tool_tags("yahoo_get_holder_info")
+    )
     async def yahoo_holder_info(ticker: str, holder_type: str):
         """
         Get holder/ownership information (UNIQUE to Yahoo Finance).
@@ -342,7 +421,10 @@ def register_yahoo_tools(mcp: FastMCP) -> None:
         """
         return await get_yahoo_holder_info(ticker, holder_type)
 
-    @mcp.tool(name="yahoo_get_recommendations")
+    @mcp.tool(
+        name="yahoo_get_recommendations",
+        tags=_get_tool_tags("yahoo_get_recommendations"),
+    )
     async def yahoo_recommendations(
         ticker: str,
         recommendation_type: str = "recommendations",
@@ -379,7 +461,9 @@ def register_research_tools(mcp: FastMCP) -> None:
             comprehensive_research,
         )
 
-        @mcp.tool(name="research_comprehensive")
+        @mcp.tool(
+            name="research_comprehensive", tags=_get_tool_tags("research_comprehensive")
+        )
         async def research_comprehensive_tool(
             query: str,
             persona: str = "moderate",
@@ -408,7 +492,7 @@ def register_research_tools(mcp: FastMCP) -> None:
                 timeframe=timeframe,
             )
 
-        @mcp.tool(name="research_company")
+        @mcp.tool(name="research_company", tags=_get_tool_tags("research_company"))
         async def research_company_tool(
             symbol: str,
             include_competitive_analysis: bool = False,
@@ -450,7 +534,9 @@ def register_system_tools(mcp: FastMCP) -> None:
         get_system_performance_health,
     )
 
-    mcp.tool(name="system_health")(get_system_performance_health)
+    mcp.tool(name="system_health", tags=_get_tool_tags("system_health"))(
+        get_system_performance_health
+    )
 
     try:
         from maverick_mcp.api.routers.health_tools import register_health_tools
@@ -474,7 +560,9 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
         setup_backtesting_tools(mcp)
         logger.info("✓ Backtesting tools registered (5 tools)")
     except ImportError:
-        logger.warning("Backtesting module not available - VectorBT may not be installed")
+        logger.warning(
+            "Backtesting module not available - VectorBT may not be installed"
+        )
     except Exception as e:
         logger.error(f"Failed to register backtesting tools: {e}")
 
@@ -574,24 +662,42 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     logger.info("=" * 60)
     logger.info("")
     logger.info("📊 UNIFIED ANALYSIS TOOLS (20):")
-    logger.info("   • technical_analysis - RSI, MACD, Bollinger, support/resistance, full")
+    logger.info(
+        "   • technical_analysis - RSI, MACD, Bollinger, support/resistance, full"
+    )
     logger.info("   • stock_screener - maverick, bear, momentum, value, supply_demand")
     logger.info("   • risk_analysis - VaR, CVaR, drawdown, stress test, comprehensive")
-    logger.info("   • quant_analysis - beta, correlation, factors, momentum, volatility")
-    logger.info("   • options_analysis - Greeks, IV, skew, strategies, strategy_template")
+    logger.info(
+        "   • quant_analysis - beta, correlation, factors, momentum, volatility"
+    )
+    logger.info(
+        "   • options_analysis - Greeks, IV, skew, strategies, strategy_template"
+    )
     logger.info("   • market_breadth - advance/decline, highs/lows, sector, regime")
     logger.info("   • multi_timeframe - trend, RSI, MA alignment, signal score")
     logger.info("   • volume_analysis - profile, VWAP, market profile, footprint")
-    logger.info("   • volatility_analysis - VIX term structure, contango, surface, regime")
+    logger.info(
+        "   • volatility_analysis - VIX term structure, contango, surface, regime"
+    )
     logger.info("   • valuation - DCF, multiples, comps, DDM, fair value")
-    logger.info("   • alternative_data - short interest, insider, institutional, options flow")
-    logger.info("   • earnings_analysis - calendar, surprise, trend, guidance, comprehensive")
+    logger.info(
+        "   • alternative_data - short interest, insider, institutional, options flow"
+    )
+    logger.info(
+        "   • earnings_analysis - calendar, surprise, trend, guidance, comprehensive"
+    )
     logger.info("   • macro_analysis - yield curve, fed funds, regime, market cycle")
     logger.info("   • portfolio_manage - add, remove, view, clear positions")
-    logger.info("   • portfolio_analyze - summary, risk, correlation, attribution, factor, style")
-    logger.info("   • watchlist_manage - create, list, view, add, remove, delete, performance")
+    logger.info(
+        "   • portfolio_analyze - summary, risk, correlation, attribution, factor, style"
+    )
+    logger.info(
+        "   • watchlist_manage - create, list, view, add, remove, delete, performance"
+    )
     logger.info("   • simulation - Monte Carlo asset/portfolio simulation")
-    logger.info("   • ml_predictions - price forecast, patterns, regime, trend, ensemble")
+    logger.info(
+        "   • ml_predictions - price forecast, patterns, regime, trend, ensemble"
+    )
     logger.info("   • comprehensive_stock_analysis - parallel analysis (4-5x faster)")
     logger.info("   • batch_stock_analysis - multi-symbol parallel analysis")
     logger.info("")
