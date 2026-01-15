@@ -14,6 +14,7 @@ import logging
 from typing import Any
 
 from maverick_mcp.api.routers.unified.analysis_wrapper import with_analysis_storage
+from maverick_mcp.api.utils.metric_guides import convert_numpy_types
 
 logger = logging.getLogger(__name__)
 
@@ -82,9 +83,20 @@ async def risk_analysis(
             "status": "error",
         }
 
+    # Normalize symbol - convert empty string to None
+    if symbol is not None:
+        symbol = symbol.strip().upper() if symbol.strip() else None
+
+    # Normalize symbols list - filter out empty strings
+    if symbols:
+        symbols = [s.strip().upper() for s in symbols if s and s.strip()]
+        if not symbols:
+            symbols = None
+
     # Default symbol if none provided
     if symbol is None and symbols is None:
         symbol = "AAPL"
+        logger.debug("No symbol provided, defaulting to AAPL")
 
     try:
         from maverick_mcp.api.routers.risk_metrics import (
@@ -98,7 +110,7 @@ async def risk_analysis(
 
         if analysis_type == "var":
             result = await risk_calculate_var(
-                symbol=symbol or symbols[0] if symbols else "AAPL",
+                symbol=symbol or (symbols[0] if symbols else "AAPL"),
                 position_value=position_value,
                 confidence=confidence,
                 holding_period=holding_period,
@@ -109,7 +121,7 @@ async def risk_analysis(
 
         elif analysis_type == "cvar":
             result = await risk_calculate_cvar(
-                symbol=symbol or symbols[0] if symbols else "AAPL",
+                symbol=symbol or (symbols[0] if symbols else "AAPL"),
                 position_value=position_value,
                 confidence=confidence,
             )
@@ -118,7 +130,7 @@ async def risk_analysis(
 
         elif analysis_type == "drawdown":
             result = await risk_drawdown_analysis(
-                symbol=symbol or symbols[0] if symbols else "AAPL",
+                symbol=symbol or (symbols[0] if symbols else "AAPL"),
                 period_years=period_years,
             )
             result["analysis_type"] = "drawdown"
@@ -126,7 +138,7 @@ async def risk_analysis(
 
         elif analysis_type == "stress_test":
             result = await risk_stress_test(
-                symbol=symbol or symbols[0] if symbols else "AAPL",
+                symbol=symbol or (symbols[0] if symbols else "AAPL"),
                 position_value=position_value,
                 scenarios=stress_scenarios,
             )
@@ -135,7 +147,7 @@ async def risk_analysis(
 
         elif analysis_type == "risk_adjusted":
             result = await risk_adjusted_returns(
-                symbol=symbol or symbols[0] if symbols else "AAPL",
+                symbol=symbol or (symbols[0] if symbols else "AAPL"),
                 benchmark=benchmark,
                 period_days=period_days,
             )
@@ -144,7 +156,7 @@ async def risk_analysis(
 
         elif analysis_type == "portfolio":
             result = await risk_portfolio_var(
-                symbols=symbols or [symbol] if symbol else ["AAPL", "MSFT", "GOOGL"],
+                symbols=symbols or ([symbol] if symbol else ["AAPL", "MSFT", "GOOGL"]),
                 weights=weights,
                 total_value=position_value,
                 confidence=confidence,
@@ -180,7 +192,8 @@ async def risk_analysis(
                 period_days=period_days,
             )
 
-            return {
+            # Convert any remaining numpy types for JSON serialization
+            return convert_numpy_types({
                 "symbol": target_symbol,
                 "analysis_type": "comprehensive",
                 "position_value": position_value,
@@ -195,7 +208,7 @@ async def risk_analysis(
                     f"Sharpe: {risk_adj_result.get('risk_adjusted_metrics', {}).get('sharpe_ratio', 0):.2f}"
                 ),
                 "status": "success",
-            }
+            })
 
     except Exception as e:
         logger.error(f"Error in risk_analysis: {e}")
